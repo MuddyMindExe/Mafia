@@ -23,33 +23,28 @@ class Player(ABC):
     def _action(self, players: dict, target):
         pass
 
-    @abstractmethod
-    def vote(self):
-        pass
-
 
 class Citizen(Player):
     def _action(self, players: dict, target: Player):
         pass
 
-    def vote(self):
-        pass
 
-
-class Mafia(Citizen):  # *
+class Mafia(Citizen):
     def _action(self, players: dict, target: Player):
         if not target.life or isinstance(target, Mafia):
             raise ActionErrors.UnacceptableTargetError()
         target.kill()
+        return True
 
 
-class Sherif(Citizen):  # *
+class Sherif(Citizen):
     def _action(self, players: dict, target: Player):
         if target == self:
             raise ActionErrors.UnacceptableTargetError()
         return target.__class__.__name__
 
 
-class Doc(Citizen):  # *
+class Doc(Citizen):
     def _action(self, players: dict, target: Player):
         target.revive()
+        return True

@@ -27,7 +27,7 @@ class Games(ObjStorage):
         del self.games[host_id]
 
     def find_player(self, player_id):
-        if self.games[player_id]:
+        if self.games.get(player_id):
             return True
         for game in self.games.values():
             if game.players[player_id]:
@@ -60,7 +60,7 @@ class Votes(ObjStorage):
         del self.votes[host_id]
 
     def find_player(self, player_id):
-        if self.votes[player_id]:
+        if self.votes.get(player_id):
             return True
         for vote in self.votes.values():
             if player_id in vote.players:

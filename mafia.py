@@ -2,44 +2,7 @@ import random
 import threading
 from player import Mafia, Sherif, Doc, Citizen
 from errors import *
-
-
-class Vote:
-    def __init__(self, host: int, players: list[int]):
-        self.host = host
-        self.players = players
-        self.votes: dict[int, list] = {player_id: [] for player_id in self.players}
-        self.voters = []
-
-    def add_vote(self, inter_id, target_id):
-        if inter_id == self.host:
-            raise VotingErrors.HostVotingError()
-        if inter_id == target_id:
-            raise VotingErrors.SelfVotingError()
-        if inter_id in self.voters:
-            raise VotingErrors.AlreadyVotedError()
-        target_votes: list = self.votes[target_id]
-        self.__add_player(target_votes, inter_id)
-        self.__add_player(self.voters, inter_id)
-        self.__remove_player(self.players, inter_id)
-
-    def remove_vote(self, inter_id):
-        if inter_id == self.host:
-            raise VotingErrors.HostVotingError
-        if inter_id not in self.voters:
-            raise VotingErrors.SelfVotingError
-        voters = self.votes.values()
-        for voter_list in voters:
-            if inter_id in voter_list:
-                self.__remove_player(voter_list, inter_id)
-
-    def __add_player(self, arr: list, player: int):
-        if player not in arr:
-            arr.append(player)
-
-    def __remove_player(self, l: list, player: int):
-        if player in l:
-            l.remove(player)
+from datahandler import DataHandler
 
 
 class Game:
@@ -69,15 +32,16 @@ class Game:
     def start_vote(self):
         return Vote(self.host, list(self.players.keys()))
 
-    def day(self):
+    def day(self):  # В боте идет проверка на отсутствие голосования
         if self.time:
             return
         self.mafia_act.clear()
         self.sherif_act.clear()
         self.doc_act.clear()
         self.time = True
+        self.start_vote()
 
-    def night(self):
+    def night(self):  # В боте идет проверка на отсутствие голосования
         if not self.time:
             return
         self.time = False
@@ -126,11 +90,11 @@ class Lobby:
         return self
 
     def remove_player(self, player_id):
-        self.players.remove(player_id)
+        self.players.discard(player_id)
         return self
 
     def create_game(self):
-        if not len(self.players) >= self.min_players_amt:
+        if len(self.players) < self.min_players_amt:
             return False
         players = self.role_assignment()
         self.game.set_players(players).build()
@@ -140,11 +104,11 @@ class Lobby:
         mafia = {key: Mafia() for key in self.__role_assign(self.mafia_amt)}
         sherif = {key: Sherif() for key in self.__role_assign(self.sherif_amt)}
         doc = {key: Doc() for key in self.__role_assign(self.doc_amt)}
-        citizen = {key: Mafia() for key in self.players}
+        citizen = {key: Citizen() for key in self.players}
         return mafia | sherif | doc | citizen
 
     def __role_assign(self, amt: int) -> list:
-        chosen = random.sample(self.players, amt)
+        chosen = random.sample(list(self.players), amt)
         for el in chosen:
             self.players.remove(el)
         return chosen

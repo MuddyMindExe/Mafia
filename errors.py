@@ -2,13 +2,10 @@ class VotingErrors:
     class VotingError(Exception):
         pass
 
-    class AlreadyVotedError(VotingError):
+    class VotingPermissionError(VotingError):
         pass
 
-    class HostVotingError(VotingError):
-        pass
-
-    class SelfVotingError(VotingError):
+    class VotingCantBeFinishedError(VotingError):
         pass
 
 
