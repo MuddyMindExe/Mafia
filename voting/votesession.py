@@ -14,3 +14,4 @@ class VoteValidator:
 
     def wait_and_finish(self):
         return self.vote.vote_result()
+sadaadsa
