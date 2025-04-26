@@ -1,7 +1,7 @@
 import threading
 from player import Mafia, Sherif, Doc, Citizen
 from errors import *
-from vote import Vote
+from voting.voteabc import VoteManager
 
 
 class Game:

@@ -1,4 +1,6 @@
-from mafia import Game, Lobby, Vote
+from mafia import Game
+from lobby import Lobby
+from voting.votesession import VoteSession
 from abc import ABC, abstractmethod
 
 
@@ -51,7 +53,7 @@ class Lobbies:
 
 class Votes(ObjStorage):
     def __init__(self):
-        self.votes: dict[int, Vote] = {}
+        self.votes: dict[int, VoteSession] = {}
 
     def add(self, host_id, vote):
         self.votes[host_id] = vote
@@ -62,8 +64,11 @@ class Votes(ObjStorage):
     def find_player(self, player_id):
         if self.votes.get(player_id):
             return True
-        for vote in self.votes.values():
-            if player_id in vote.players:
+        vote_sessions = self.votes.values()
+        for vote_session in vote_sessions:
+            vote = vote_session.vote
+            players = vote.voters.players
+            if player_id in players:
                 return True
         return False
 
