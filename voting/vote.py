@@ -18,10 +18,6 @@ class Vote(ABC):
         pass
 
     @abstractmethod
-    def find_player(self, target_id):
-        pass
-
-    @abstractmethod
     def vote_result(self):
         pass
 
@@ -37,9 +33,6 @@ class VoteKick(Vote):
     def remove_vote(self, inter_id: int):
         self.votes.remove_vote(inter_id)
         self.voters.remove_voter(inter_id)
-
-    def find_player(self, target_id):
-        return any(target_id in group for group in [self.voters.voters, self.voters.players])
 
     def vote_result(self):
         return self.votes.calculate_votes()

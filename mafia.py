@@ -1,7 +1,5 @@
-import threading
 from player import Mafia, Sherif, Doc, Citizen
 from errors import *
-from voting.voteabc import VoteManager
 
 
 class Game:
@@ -9,12 +7,8 @@ class Game:
         self.host = host
         self.time = time
         self.players: dict[int, Mafia | Sherif | Doc | Citizen] = players
-        self.mafia_act = threading.Event()
-        self.doc_act = threading.Event()
-        self.sherif_act = threading.Event()
-        self.voting = threading.Event()
 
-    def move(self, inter_id: int, target_id: int, role_type, event: threading.Event):  # *
+    def move(self, inter_id: int, target_id: int, role_type):  # *
         if self.time:
             raise GameErrors.TimeError()
         player = self.players.get(inter_id)
@@ -26,27 +20,15 @@ class Game:
         if not isinstance(player, role_type):
             raise ActionErrors.ActionPermissionError()
         player.action(self.players, target)
-        event.set()
-
-    def start_vote(self):
-        return Vote(self.host, list(self.players.keys()))
 
     def day(self):  # В боте идет проверка на отсутствие голосования
         if self.time:
             return
-        self.mafia_act.clear()
-        self.sherif_act.clear()
-        self.doc_act.clear()
         self.time = True
-        self.start_vote()
 
     def night(self):  # В боте идет проверка на отсутствие голосования
         if not self.time:
             return
-        self.time = False
-        self.mafia_act.wait()
-        self.sherif_act.wait()
-        self.doc_act.wait()
 
 
 class GameCreator:
