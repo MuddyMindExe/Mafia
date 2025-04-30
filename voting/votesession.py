@@ -19,8 +19,11 @@ class AsyncVoteSession(VoteSession):
 
     async def add_vote(self, inter_id, target_id):
         async with self._lock:
-            self.vote_obj.add_vote(inter_id, target_id)
+            await asyncio.to_thread(self.vote_obj.add_vote, inter_id, target_id)
 
     async def remove_vote(self, inter_id):
         async with self._lock:
-            self.vote_obj.remove_vote(inter_id)
+            await asyncio.to_thread(self.vote_obj.remove_vote, inter_id)
+
+    async def find_player(self, target_id):
+        await asyncio.to_thread(self.vote_obj.find_player(target_id))
