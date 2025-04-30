@@ -23,12 +23,13 @@ class Game:
 
     def day(self):  # В боте идет проверка на отсутствие голосования
         if self.time:
-            return
+            raise GameErrors.TimeError()
         self.time = True
 
     def night(self):  # В боте идет проверка на отсутствие голосования
         if not self.time:
-            return
+            raise GameErrors.TimeError()
+        self.time = False
 
 
 class GameCreator:

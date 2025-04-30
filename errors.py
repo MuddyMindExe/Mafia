@@ -38,3 +38,6 @@ class GameErrors:
 
     class TimeError(GameError):
         pass
+
+    class NotReadyError(GameError):
+        pass
