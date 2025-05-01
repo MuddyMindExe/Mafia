@@ -1,9 +1,9 @@
-from game import GameCreator, Mafia, Sherif, Doc, Citizen
+from game.game import GameCreator, Mafia, Sherif, Doc, Citizen
 import random
 
 
 class Lobby:
-    def __init__(self, host, time, mafia_amt, sherif_amt, doc_amt):
+    def __init__(self, host, time, mafia_amt, doc_amt, sherif_amt):
         self.host = host
         self.time = time
         self.players = set()
@@ -29,13 +29,13 @@ class Lobby:
         return self.game
 
     def role_assignment(self) -> dict:
-        mafia = {key: Mafia() for key in self.__role_assign(self.mafia_amt)}
-        sherif = {key: Sherif() for key in self.__role_assign(self.sherif_amt)}
-        doc = {key: Doc() for key in self.__role_assign(self.doc_amt)}
+        mafia   = {key: Mafia()   for key in self.__role_assign(self.mafia_amt)}
+        sherif  = {key: Sherif()  for key in self.__role_assign(self.sherif_amt)}
+        doc     = {key: Doc()     for key in self.__role_assign(self.doc_amt)}
         citizen = {key: Citizen() for key in self.players}
         return mafia | sherif | doc | citizen
 
-    def __role_assign(self, amt: int) -> list:
+    def __role_assign(self, amt: int) -> list:  # **
         chosen = random.sample(list(self.players), amt)
         for el in chosen:
             self.players.remove(el)

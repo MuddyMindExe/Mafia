@@ -1,5 +1,5 @@
-from mafia import Game
-from lobby import Lobby
+from game.game import Game
+from game.lobby import Lobby
 from voting.votesession import VoteSession
 from abc import ABC, abstractmethod
 
@@ -47,8 +47,8 @@ class Lobbies:
     def delete(self, host_id):
         del self.lobbies[host_id]
 
-    def find_player(self, player_id):
-        return any(player_id in lobby.players for lobby in self.lobbies.values())
+    def find_player(self, target_id):
+        return any(target_id in lobby.players for lobby in self.lobbies.values())
 
 
 class Votes(ObjStorage):
@@ -73,6 +73,6 @@ class Votes(ObjStorage):
         return False
 
 
-current_votes = Votes()
 current_games = Games()
 current_lobbies = Lobbies()
+current_votes = Votes()
