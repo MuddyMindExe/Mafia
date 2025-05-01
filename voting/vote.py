@@ -4,10 +4,10 @@ from votestorage import VotersStorage, VotesStorage
 
 
 class Vote(ABC):
-    def __init__(self, host_id: int, players):
+    def __init__(self, host_id: int, voters: VotersStorage, votes: VotesStorage):
         self.host_id = host_id
-        self.voters = VotersStorage(players)
-        self.votes = VotesStorage()
+        self.voters = voters
+        self.votes = votes
 
     @abstractmethod
     def add_vote(self, inter_id, target_id):
@@ -23,8 +23,8 @@ class Vote(ABC):
 
 
 class VoteKick(Vote):
-    def __init__(self, host_id: int, players):
-        super().__init__(host_id, players)
+    def __init__(self, host_id: int, voters: VotersStorage, votes: VotesStorage):
+        super().__init__(host_id, voters, votes)
 
     def add_vote(self, inter_id: int, target_id: int):
         self.votes.add_vote(inter_id, target_id)
@@ -39,6 +39,16 @@ class VoteKick(Vote):
 
     def finish_ready(self):
         return not self.voters.get_players()
+
+
+class VoteCreator:
+    def __init__(self, host_id, players: list):
+        self.host_id = host_id
+        self.voters = VotersStorage(players)
+        self.votes = VotesStorage()
+
+    def create(self):
+        return VoteKick(self.host_id, self.voters, self.votes)
 
 
 class ValidatingVotes:

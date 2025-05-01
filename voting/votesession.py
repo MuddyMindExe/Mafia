@@ -24,3 +24,6 @@ class AsyncVoteSession(VoteSession):
     async def remove_vote(self, inter_id):
         async with self._lock:
             await asyncio.to_thread(self.vote_obj.remove_vote, inter_id)
+
+    async def start_vote(self):
+        pass

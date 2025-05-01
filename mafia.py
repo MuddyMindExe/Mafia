@@ -21,12 +21,12 @@ class Game:
             raise ActionErrors.ActionPermissionError()
         player.action(self.players, target)
 
-    def day(self):  # В боте идет проверка на отсутствие голосования
+    def day(self):
         if self.time:
             raise GameErrors.TimeError()
         self.time = True
 
-    def night(self):  # В боте идет проверка на отсутствие голосования
+    def night(self):
         if not self.time:
             raise GameErrors.TimeError()
         self.time = False
