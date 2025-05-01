@@ -9,7 +9,7 @@ class VotingErrors:
         pass
 
 
-class ActionErrors:
+class PlayerErrors:
     class PlayerError(Exception):
         pass
 
@@ -40,4 +40,12 @@ class GameErrors:
         pass
 
     class NotReadyError(GameError):
+        pass
+
+
+class LobbyErrors:
+    class LobbyError(Exception):
+        pass
+
+    class LobbyNotFoundError(LobbyError):
         pass

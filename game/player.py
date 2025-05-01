@@ -15,7 +15,7 @@ class Player(ABC):
 
     def action(self, players: dict, target):
         if self.choice:
-            raise ActionErrors.ActionDoneError()
+            raise PlayerErrors.ActionDoneError()
         self._action(players, target)
         self.choice = True
 
@@ -32,7 +32,7 @@ class Citizen(Player):
 class Mafia(Citizen):
     def _action(self, players: dict, target: Player):
         if not target.life or isinstance(target, Mafia):
-            raise ActionErrors.UnacceptableTargetError()
+            raise PlayerErrors.UnacceptableTargetError()
         target.kill()
         return True
 
@@ -40,7 +40,7 @@ class Mafia(Citizen):
 class Sherif(Citizen):
     def _action(self, players: dict, target: Player):
         if target == self:
-            raise ActionErrors.UnacceptableTargetError()
+            raise PlayerErrors.UnacceptableTargetError()
         return target.__class__.__name__
 
 

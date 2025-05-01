@@ -3,23 +3,32 @@ from errors import *
 
 
 class Game:
-    def __init__(self, host: int, time: bool, players: dict):
+    def __init__(self, host: int, time: bool, mafia, doc, sherif, citizen):
         self.host = host
         self.time = time
-        self.players: dict[int, Mafia | Sherif | Doc | Citizen] = players
+        self.mafia = mafia
+        self.doc = doc
+        self.sherif = sherif
+        self.citizen = citizen
+        self.union: dict = self.mafia | self.doc | self.sherif | self.citizen
 
     def move(self, inter_id: int, target_id: int, role_type):  # *
         if self.time:
             raise GameErrors.TimeError()
-        player = self.players.get(inter_id)
-        target = self.players.get(target_id)
+        player = self.get_player(inter_id)
+        target = self.get_player(target_id)
         if player is None:
-            raise ActionErrors.PlayerNotFoundError()
+            raise PlayerErrors.PlayerNotFoundError()
         if target is None:
-            raise ActionErrors.TargetNotFoundError()
+            raise PlayerErrors.TargetNotFoundError()
         if not isinstance(player, role_type):
-            raise ActionErrors.ActionPermissionError()
-        player.action(self.players, target)
+            raise PlayerErrors.ActionPermissionError()
+        player.action(self.union, target)
+
+    # def finish_ready(self):
+    #     if
+    #     if not any(isinstance(obj, Mafia) for obj in self.players.values()):
+    #         return True
 
     def day(self):
         if self.time:
@@ -31,12 +40,18 @@ class Game:
             raise GameErrors.TimeError()
         self.time = False
 
+    def get_player(self, target_id):
+        return self.union.get(target_id)
+
 
 class GameCreator:
     def __init__(self):
         self.host = None
         self.time = True
-        self.players = None
+        self.mafia = None
+        self.doc = None
+        self.sherif = None
+        self.citizen = None
 
     def set_time(self, time: bool):
         self.time = time
@@ -46,11 +61,14 @@ class GameCreator:
         self.host = host
         return self
 
-    def set_players(self, players: dict):
-        self.players = players
+    def set_players(self, mafia: dict, doc: dict, sherif: dict, citizen: dict):
+        self.mafia = mafia
+        self.doc = doc
+        self.sherif = sherif
+        self.citizen = citizen
         return self
 
     def build(self) -> Game:
-        if not all([self.host, self.time, self.players]):
+        if not all([self.host, self.time, self.mafia, self.doc, self.sherif, self.citizen]):
             raise ValueError("Missing required fields")
-        return Game(self.host, self.time, self.players)
+        return Game(self.host, self.time, self.mafia, self.doc, self.sherif, self.citizen)

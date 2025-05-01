@@ -1,17 +1,17 @@
-from game.game import GameCreator, Mafia, Sherif, Doc, Citizen
+from game.game import Game, GameCreator, Mafia, Sherif, Doc, Citizen
 import random
 
 
 class Lobby:
     def __init__(self, host, time, mafia_amt, doc_amt, sherif_amt):
-        self.host = host
-        self.time = time
-        self.players = set()
-        self.mafia_amt = mafia_amt
+        self.host       = host
+        self.time       = time
+        self.players    = set()
+        self.mafia_amt  = mafia_amt
         self.sherif_amt = sherif_amt
-        self.doc_amt = doc_amt
+        self.doc_amt    = doc_amt
+        self.game       = GameCreator().set_host(self.host).set_time(self.time)
         self.min_players_amt = self.mafia_amt + self.sherif_amt + self.doc_amt + 2
-        self.game = GameCreator().set_host(self.host).set_time(self.time)
 
     def add_player(self, player_id):
         self.players.add(player_id)
@@ -21,11 +21,11 @@ class Lobby:
         self.players.discard(player_id)
         return self
 
-    def create_game(self):
+    def create_game(self) -> Game | bool:
         if len(self.players) < self.min_players_amt:
             return False
-        players = self.role_assignment()
-        self.game.set_players(players).build()
+        mafia, doc, sherif, citizen = self.role_assignment()
+        self.game.set_players(mafia, doc, sherif, citizen).build()
         return self.game
 
     def role_assignment(self) -> dict:

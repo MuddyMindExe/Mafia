@@ -1,6 +1,6 @@
 import asyncio
 from player import Mafia, Sherif, Doc
-from game import Game
+from game.game import Game
 from errors import GameErrors
 from abc import ABC, abstractmethod
 
