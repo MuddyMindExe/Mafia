@@ -1,4 +1,4 @@
-from mafia import GameCreator, Mafia, Sherif, Doc, Citizen
+from game import GameCreator, Mafia, Sherif, Doc, Citizen
 import random
 
 

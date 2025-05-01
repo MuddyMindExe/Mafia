@@ -1,10 +1,33 @@
 import asyncio
 from player import Mafia, Sherif, Doc
-from mafia import Game
+from game import Game
 from errors import GameErrors
+from abc import ABC, abstractmethod
 
 
-class AsyncGameHandler:
+class AsyncGameSession(ABC):
+    @abstractmethod
+    async def mafia_move(self, inter_id, target_id):
+        pass
+
+    @abstractmethod
+    async def doc_move(self, inter_id, target_id):
+        pass
+
+    @abstractmethod
+    async def sherif_move(self, inter_id, target_id):
+        pass
+
+    @abstractmethod
+    async def day(self):
+        pass
+
+    @abstractmethod
+    async def night(self):
+        pass
+
+
+class GameSession(AsyncGameSession):
     def __init__(self, game_obj: Game):
         self.game_obj = game_obj
         self.mafia_event = asyncio.Event()
@@ -28,7 +51,7 @@ class AsyncGameHandler:
         return self.game_obj.move(inter_id, target_id, Sherif)
 
     async def day(self):
-        if all([self.mafia_event.is_set(), self.doc_event.is_set(), self.sherif_event.is_set()]):
+        if all([self.mafia_event.is_set(), self.doc_event.is_set()]):
             await asyncio.to_thread(self.game_obj.day())
         else:
             raise GameErrors.NotReadyError
