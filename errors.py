@@ -10,6 +10,9 @@ class VotingErrors:
     class VotingError(Exception):
         pass
 
+    class VoteNotFoundError(VotingError):
+        pass
+
     class VotingPermissionError(VotingError):
         pass
 

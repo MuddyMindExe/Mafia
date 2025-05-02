@@ -3,7 +3,7 @@ from errors import PlayerErrors, VotingErrors
 
 
 class VotersStorage:
-    def __init__(self, players: list):
+    def __init__(self, players: list[int]):
         self.players = {player_id: False for player_id in players}
 
     def set_voter_status(self, voter_id: int, status: bool):
@@ -14,8 +14,8 @@ class VotersStorage:
 
 
 class VotesStorage:
-    def __init__(self, player_ids: list[int]):
-        self.votes = {player_id: [] for player_id in player_ids}
+    def __init__(self, players: list[int]):
+        self.votes = {player_id: [] for player_id in players}
 
     def add_vote(self, inter_id, target_id):
         if not self.votes.get(inter_id):
@@ -27,12 +27,29 @@ class VotesStorage:
         self.votes[target_id].append(inter_id)
 
     def remove_vote(self, inter_id):
-        for votes_list in self.votes.values():
-            if inter_id in votes_list:
-                votes_list.remove(inter_id)
+        for voters_list in self.votes.values():
+            if inter_id in voters_list:
+                voters_list.remove(inter_id)
 
     def get_votes(self):
         return self.votes
 
     def calculate_votes(self):
         return DataHandler.calculate_keys(self.votes)
+
+
+class VotesManager:
+    def __init__(self, players: list[int]):
+        self.voters = VotersStorage(players)
+        self.votes = VotesStorage(players)
+
+    def add_vote(self, inter_id: int, target_id: int):
+        self.votes.add_vote(inter_id, target_id)
+        self.voters.set_voter_status(inter_id, True)
+
+    def remove_vote(self, inter_id: int):
+        self.votes.remove_vote(inter_id)
+        self.voters.set_voter_status(inter_id, False)
+
+    def vote_result(self):
+        return self.votes.calculate_votes()

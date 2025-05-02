@@ -1,13 +1,12 @@
 from errors import VotingErrors
 from abc import ABC, abstractmethod
-from votestorage import VotersStorage, VotesStorage
+from votestorage import VotesManager
 
 
 class Vote(ABC):
-    def __init__(self, host_id: int, voters: VotersStorage, votes: VotesStorage):
+    def __init__(self, host_id: int, votes_manager: VotesManager):
         self.host_id = host_id
-        self.voters = voters
-        self.votes = votes
+        self.votes_manager = votes_manager
 
     @abstractmethod
     def add_vote(self, inter_id, target_id):
@@ -23,32 +22,26 @@ class Vote(ABC):
 
 
 class VoteKick(Vote):
-    def __init__(self, host_id: int, voters: VotersStorage, votes: VotesStorage):
-        super().__init__(host_id, voters, votes)
+    def __init__(self, host_id: int, votes_manager: VotesManager):
+        super().__init__(host_id, votes_manager)
 
     def add_vote(self, inter_id: int, target_id: int):
-        self.votes.add_vote(inter_id, target_id)
-        self.voters.add_voter(inter_id)
+        self.votes_manager.add_vote(inter_id, target_id)
 
     def remove_vote(self, inter_id: int):
-        self.votes.remove_vote(inter_id)
-        self.voters.remove_voter(inter_id)
+        self.votes_manager.remove_vote(inter_id)
 
     def vote_result(self):
-        return self.votes.calculate_votes()
-
-    def finish_ready(self):
-        return not self.voters.get_players()
+        return self.votes_manager.vote_result()
 
 
 class VoteCreator:
     def __init__(self, host_id, players: list):
         self.host_id = host_id
-        self.voters = VotersStorage(players)
-        self.votes = VotesStorage()
+        self.votes_manager = VotesManager(players)
 
     def create(self):
-        return VoteKick(self.host_id, self.voters, self.votes)
+        return VoteKick(self.host_id, self.votes_manager)
 
 
 class ValidatingVotes:

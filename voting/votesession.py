@@ -16,8 +16,6 @@ class AsyncVoteSession(ABC):
 class VoteSession(AsyncVoteSession):
     def __init__(self, vote_obj: Vote):
         self.vote_obj = vote_obj
-        self.voters = self.vote_obj.voters
-        self.votes = self.vote_obj.votes
         self._lock = asyncio.Lock()
 
     async def add_vote(self, inter_id, target_id):
