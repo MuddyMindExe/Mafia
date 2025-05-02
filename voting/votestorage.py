@@ -1,35 +1,30 @@
 from datahandler import DataHandler
+from errors import PlayerErrors, VotingErrors
 
 
 class VotersStorage:
     def __init__(self, players: list):
-        self.players = players
-        self.voters = []
+        self.players = {player_id: False for player_id in players}
 
-    def add_voter(self, voter_id):
-        self.voters.append(voter_id)
-        self.players.remove(voter_id)
-
-    def remove_voter(self, voter_id):
-        self.voters.remove(voter_id)
-        self.players.append(voter_id)
-
-    def get_players(self):
-        return self.players
-
-    def get_voters(self):
-        return self.voters
+    def set_voter_status(self, voter_id: int, status: bool):
+        if self.players[voter_id]:
+            self.players[voter_id] = status
+        else:
+            raise PlayerErrors.PlayerNotFoundError()
 
 
 class VotesStorage:
-    def __init__(self):
-        self.votes: dict[int, list[int]] = {}
+    def __init__(self, player_ids: list[int]):
+        self.votes = {player_id: [] for player_id in player_ids}
 
     def add_vote(self, inter_id, target_id):
+        if not self.votes.get(inter_id):
+            raise VotingErrors.VotingPermissionError()
         if not self.votes.get(target_id):
-            self.votes[target_id] = [inter_id]
-        else:
-            self.votes[target_id].append(inter_id)
+            raise PlayerErrors.PlayerNotFoundError()
+        if inter_id in self.votes.get(target_id):
+            raise VotingErrors.AlreadyVotedError()
+        self.votes[target_id].append(inter_id)
 
     def remove_vote(self, inter_id):
         for votes_list in self.votes.values():

@@ -3,14 +3,10 @@ from errors import *
 
 
 class Game:
-    def __init__(self, host: int, time: bool, mafia, doc, sherif, citizen):
+    def __init__(self, host: int, time: bool, players: dict[int, Mafia | Doc | Sherif | Citizen]):
         self.host = host
         self.time = time
-        self.mafia = mafia
-        self.doc = doc
-        self.sherif = sherif
-        self.citizen = citizen
-        self.union: dict = self.mafia | self.doc | self.sherif | self.citizen
+        self.players = players
 
     def move(self, inter_id: int, target_id: int, role_type):  # *
         if self.time:
@@ -23,7 +19,7 @@ class Game:
             raise PlayerErrors.TargetNotFoundError()
         if not isinstance(player, role_type):
             raise PlayerErrors.ActionPermissionError()
-        player.action(self.union, target)
+        player.action(self.players, target)
 
     # def finish_ready(self):
     #     if
@@ -41,17 +37,14 @@ class Game:
         self.time = False
 
     def get_player(self, target_id):
-        return self.union.get(target_id)
+        return self.players.get(target_id)
 
 
 class GameCreator:
     def __init__(self):
         self.host = None
         self.time = True
-        self.mafia = None
-        self.doc = None
-        self.sherif = None
-        self.citizen = None
+        self.players = None
 
     def set_time(self, time: bool):
         self.time = time
@@ -61,14 +54,11 @@ class GameCreator:
         self.host = host
         return self
 
-    def set_players(self, mafia: dict, doc: dict, sherif: dict, citizen: dict):
-        self.mafia = mafia
-        self.doc = doc
-        self.sherif = sherif
-        self.citizen = citizen
+    def set_players(self, players: dict[int, Mafia | Doc | Sherif | Citizen]):
+        self.players = players
         return self
 
     def build(self) -> Game:
-        if not all([self.host, self.time, self.mafia, self.doc, self.sherif, self.citizen]):
+        if not all([self.host, self.time, self.players]):
             raise ValueError("Missing required fields")
-        return Game(self.host, self.time, self.mafia, self.doc, self.sherif, self.citizen)
+        return Game(self.host, self.time, self.players)

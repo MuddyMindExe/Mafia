@@ -1,3 +1,11 @@
+class GeneralErrors:
+    class Error(Exception):
+        pass
+
+    class ObjNotExists(Error):
+        pass
+
+
 class VotingErrors:
     class VotingError(Exception):
         pass
@@ -6,6 +14,9 @@ class VotingErrors:
         pass
 
     class VotingCantBeFinishedError(VotingError):
+        pass
+
+    class AlreadyVotedError(VotingError):
         pass
 
 

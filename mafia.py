@@ -1,7 +1,7 @@
 import asyncio
 from game.lobby import Lobby
 from gl import current_games, current_lobbies, current_votes
-from errors import GameErrors, LobbyErrors
+from errors import GameErrors, LobbyErrors, VotingErrors, GeneralErrors
 
 
 class AsyncLobbyInteraction:
@@ -49,6 +49,30 @@ class AsyncGameInteraction:
         async with self._lock:
             current_games.delete(host_id)
 
-    async def remove_player(self, host_id, inter_id):
-        game = current_games.games.get(host_id)
-        game.players.
+
+class AsyncVoteInteraction:
+    def __init__(self):
+        self._lock = asyncio.Lock()
+
+    async def add_vote(self, host_id, inter_id, target_id):
+        vote = current_votes.votes.get(host_id)
+        players = vote.voters.players
+        if not vote:
+            raise GeneralErrors.ObjNotExists()
+        if inter_id not in players or target_id not in players:
+            raise VotingErrors.VotingPermissionError()
+        async with self._lock:
+            vote.votes.add_vote(inter_id, target_id)
+
+    async def remove_vote(self, host_id, inter_id, target_id):
+        vote = current_votes.votes.get(host_id)
+        voters = vote.voters.voters
+        if not vote:
+            raise GeneralErrors.ObjNotExists()
+        if inter_id not in voters:
+            raise VotingErrors.VotingPermissionError()
+        if target_id not in voters.
+        async with self._lock:
+            vote.votes.add_vote(inter_id, target_id)
+
+
