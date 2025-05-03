@@ -1,27 +1,27 @@
-from errors import VotingErrors
 from abc import ABC, abstractmethod
 from votestorage import VotesManager
 
 
 class Vote(ABC):
+    """Abstract base class for voting systems"""
+
     def __init__(self, host_id: int, votes_manager: VotesManager):
         self.host_id = host_id
         self.votes_manager = votes_manager
 
     @abstractmethod
-    def add_vote(self, inter_id, target_id):
-        pass
+    def add_vote(self, inter_id, target_id) -> None: ...
 
     @abstractmethod
-    def remove_vote(self, inter_id):
-        pass
+    def remove_vote(self, inter_id) -> None: ...
 
     @abstractmethod
-    def vote_result(self):
-        pass
+    def vote_result(self) -> list[int]: ...
 
 
 class VoteKick(Vote):
+    """Implementation for kick voting system"""
+
     def __init__(self, host_id: int, votes_manager: VotesManager):
         super().__init__(host_id, votes_manager)
 
@@ -36,18 +36,11 @@ class VoteKick(Vote):
 
 
 class VoteCreator:
+    """Vote constructor"""
+
     def __init__(self, host_id, players: list):
         self.host_id = host_id
         self.votes_manager = VotesManager(players)
 
-    def create(self):
+    def create(self) -> VoteKick:
         return VoteKick(self.host_id, self.votes_manager)
-
-
-class ValidatingVotes:
-    def __init__(self, host_id):
-        self.host_id = host_id
-
-    def permission_validate(self, players, inter_id, target_id=None):
-        if inter_id == self.host_id or inter_id not in players or inter_id == target_id:
-            raise VotingErrors.VotingPermissionError()

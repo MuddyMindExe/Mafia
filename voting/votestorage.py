@@ -3,10 +3,18 @@ from errors import PlayerErrors, VotingErrors
 
 
 class VotersStorage:
+    """Storage of Voters"""
+
     def __init__(self, players: list[int]):
         self.players = {player_id: False for player_id in players}
 
     def set_voter_status(self, voter_id: int, status: bool):
+        """Sets user status
+        user status:
+        True: voted
+        False: didn`t vote
+        """
+
         if self.players[voter_id]:
             self.players[voter_id] = status
         else:
@@ -34,7 +42,7 @@ class VotesStorage:
     def get_votes(self):
         return self.votes
 
-    def calculate_votes(self):
+    def calculate_votes(self):  # **
         return DataHandler.calculate_keys(self.votes)
 
 

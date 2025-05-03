@@ -1,6 +1,6 @@
 from game.game import Game
 from game.lobby import Lobby
-from voting.votesession import VoteSession
+from voting.votesession import AsyncVoteSession as VoteSession
 from abc import ABC, abstractmethod
 
 
@@ -48,6 +48,8 @@ class Lobbies:
         del self.lobbies[host_id]
 
     def find_player(self, target_id):
+        if self.lobbies.get(target_id):
+            return True
         return any(target_id in lobby.players for lobby in self.lobbies.values())
 
 
@@ -66,8 +68,8 @@ class Votes(ObjStorage):
             return True
         vote_sessions = self.votes.values()
         for vote_session in vote_sessions:
-            vote = vote_session.vote
-            players = vote.voters.players
+            vote = vote_session.vote_obj
+            players = vote.votes_manager.voters.players.keys()
             if player_id in players:
                 return True
         return False
