@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from votestorage import VotesManager
 
 
@@ -19,26 +20,27 @@ class Vote(ABC):
     def vote_result(self) -> list[int]: ...
 
 
+@dataclass
 class VoteKick(Vote):
     """Implementation for kick voting system"""
 
-    def __init__(self, host_id: int, votes_manager: VotesManager):
-        super().__init__(host_id, votes_manager)
+    host_id: int
+    votes_manager: VotesManager
 
-    def add_vote(self, inter_id: int, target_id: int):
+    def add_vote(self, inter_id: int, target_id: int) -> None:
         self.votes_manager.add_vote(inter_id, target_id)
 
-    def remove_vote(self, inter_id: int):
+    def remove_vote(self, inter_id: int) -> None:
         self.votes_manager.remove_vote(inter_id)
 
-    def vote_result(self):
+    def vote_result(self) -> list[int]:
         return self.votes_manager.vote_result()
 
 
 class VoteCreator:
-    """Vote constructor"""
+    """Vote instances factory"""
 
-    def __init__(self, host_id, players: list):
+    def __init__(self, host_id: int, players: list[int]):
         self.host_id = host_id
         self.votes_manager = VotesManager(players)
 
