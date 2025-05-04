@@ -1,5 +1,5 @@
 import asyncio
-from vote import Vote
+from voting.vote import Vote
 from abc import ABC, abstractmethod
 
 

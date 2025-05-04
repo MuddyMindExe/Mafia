@@ -9,8 +9,8 @@ class AsyncLobbyInteraction:
         self._lock = asyncio.Lock()
 
     async def start(self, host_id, time, mafia_amt, doc_amt, sherif_amt):
-        lobby = Lobby(host_id, time, mafia_amt, doc_amt, sherif_amt)
         async with self._lock:
+            lobby = Lobby(host_id, time, mafia_amt, doc_amt, sherif_amt)
             current_lobbies.add(host_id, lobby)
 
     async def delete(self, host_id):
@@ -18,8 +18,8 @@ class AsyncLobbyInteraction:
             current_lobbies.delete(host_id)
 
     async def add_player(self, host_id, inter_id):
-        lobby = current_lobbies.lobbies.get(host_id)
         async with self._lock:
+            lobby = current_lobbies.lobbies.get(host_id)
             lobby.add_player(inter_id)
 
     async def remove_player(self, host_id, inter_id):

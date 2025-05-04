@@ -50,6 +50,9 @@ class GameErrors:
     class GameError(Exception):
         pass
 
+    class NotEnoughPlayersError(GameError):
+        pass
+
     class TimeError(GameError):
         pass
 

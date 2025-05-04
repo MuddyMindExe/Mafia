@@ -32,7 +32,7 @@ class Games(ObjStorage):
         if self.games.get(player_id):
             return True
         for game in self.games.values():
-            if game.players[player_id]:
+            if game.players.get(player_id):
                 return True
         return False
 
@@ -45,7 +45,7 @@ class Lobbies:
         self.lobbies[host_id] = lobby
 
     def delete(self, host_id):
-        del self.lobbies[host_id]
+        self.lobbies.pop(host_id, None)
 
     def find_player(self, target_id):
         if self.lobbies.get(target_id):

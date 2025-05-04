@@ -1,4 +1,4 @@
-from player import Mafia, Sherif, Doc, Citizen
+from game.player import Mafia, Sherif, Doc, Citizen
 from errors import *
 
 
@@ -20,11 +20,6 @@ class Game:
         if not isinstance(player, role_type):
             raise PlayerErrors.ActionPermissionError()
         player.action(self.players, target)
-
-    # def finish_ready(self):
-    #     if
-    #     if not any(isinstance(obj, Mafia) for obj in self.players.values()):
-    #         return True
 
     def day(self):
         if self.time:

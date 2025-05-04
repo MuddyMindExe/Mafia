@@ -1,16 +1,17 @@
 from game.game import Game, GameCreator, Mafia, Sherif, Doc, Citizen
 import random
+from errors import GameErrors
 
 
 class Lobby:
-    def __init__(self, host, time, mafia_amt, doc_amt, sherif_amt):
-        self.host       = host
+    def __init__(self, host_id, time, mafia_amt, doc_amt, sherif_amt):
+        self.host_id       = host_id
         self.time       = time
         self.players    = set()
         self.mafia_amt  = mafia_amt
         self.sherif_amt = sherif_amt
         self.doc_amt    = doc_amt
-        self.game       = GameCreator().set_host(self.host).set_time(self.time)
+        self.game       = GameCreator().set_host(self.host_id).set_time(self.time)
         self.min_players_amt = self.mafia_amt + self.sherif_amt + self.doc_amt + 2
 
     def add_player(self, player_id):
@@ -21,11 +22,11 @@ class Lobby:
         self.players.discard(player_id)
         return self
 
-    def create_game(self) -> Game | bool:
+    def create_game(self) -> Game:
         if len(self.players) < self.min_players_amt:
-            return False
-        mafia, doc, sherif, citizen = self.role_assignment()
-        self.game.set_players(mafia, doc, sherif, citizen).build()
+            raise GameErrors.NotEnoughPlayersError()
+        players = self.role_assignment()
+        self.game.set_players(players).build()
         return self.game
 
     def role_assignment(self) -> dict:
@@ -40,3 +41,7 @@ class Lobby:
         for el in chosen:
             self.players.remove(el)
         return chosen
+
+    def __repr__(self):
+        return f"\nhost_id: {self.host_id}\ntime: {self.time}\nplayers: {self.players}\n" \
+               f"mafia_amt: {self.mafia_amt}\ndoc_amt: {self.doc_amt}\nsherif_amt: {self.sherif_amt}\n"
