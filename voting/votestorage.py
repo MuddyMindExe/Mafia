@@ -6,6 +6,7 @@ class VotersStorage:
 
     def __init__(self, players: list[int]):
         self.players = {player_id: False for player_id in players}
+        self.not_voted_amt = len(self.players.keys())
 
     def set_voter_status(self, voter_id: int, status: bool):
         """Update a player's voting status.
@@ -75,10 +76,14 @@ class VotesManager:
     def add_vote(self, inter_id: int, target_id: int):
         self.votes.add_vote(inter_id, target_id)
         self.voters.set_voter_status(inter_id, True)
+        self.voters.not_voted_amt -= 1
+        if self.voters.not_voted_amt == 0:
+            return self.vote_result()
 
     def remove_vote(self, inter_id: int):
         self.votes.remove_vote(inter_id)
         self.voters.set_voter_status(inter_id, False)
+        self.voters.not_voted_amt += 1
 
     def vote_result(self):
         return self.votes.calculate_votes(self.votes.votes)
