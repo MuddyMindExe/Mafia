@@ -1,4 +1,5 @@
 from errors import PlayerErrors, VotingErrors
+import asyncio
 
 
 class VotersStorage:
@@ -8,20 +9,14 @@ class VotersStorage:
         self.players = {player_id: False for player_id in players}
         self.not_voted_amt = len(self.players.keys())
 
-    def set_voter_status(self, voter_id: int, status: bool):
+    def set_voter_status(self, inter_id: int, status: bool):
         """Update a player's voting status.
 
         Args:
-            voter_id: Player identifier
+            inter_id: Player identifier
             status: True if voted, False if not
-
-        Raises:
-            PlayerErrors.PlayerNotFoundError: If player isn't a part of vote
         """
-        if self.players[voter_id]:
-            self.players[voter_id] = status
-        else:
-            raise PlayerErrors.PlayerNotFoundError()
+        self.players[inter_id] = status
 
 
 class VotesStorage:
@@ -36,18 +31,7 @@ class VotesStorage:
         Args:
             inter_id: Voter's ID
             target_id: Vote target ID
-
-        Raises:
-            VotingErrors.VotingPermissionError: If voter can't vote
-            PlayerErrors.PlayerNotFoundError: If target isn't a part of vote
-            VotingErrors.AlreadyVotedError: If duplicate vote
         """
-        if not self.votes.get(inter_id):
-            raise VotingErrors.VotingPermissionError()
-        if not self.votes.get(target_id):
-            raise PlayerErrors.PlayerNotFoundError()
-        if inter_id in self.votes.get(target_id):
-            raise VotingErrors.AlreadyVotedError()
         self.votes[target_id].append(inter_id)
 
     def remove_vote(self, inter_id):
@@ -55,7 +39,6 @@ class VotesStorage:
 
         Args:
             inter_id: Voter's ID
-            target_id: Vote target ID
         """
         for voters_list in self.votes.values():
             if inter_id in voters_list:
@@ -64,26 +47,59 @@ class VotesStorage:
     def get_votes(self):
         return self.votes
 
-    def calculate_votes(self, votes: dict[int, list[int]]):
-        return max(votes, key=lambda k: len(votes[k]))
+    def calculate_votes(self):
+        return max(self.votes, key=lambda k: len(self.votes[k]))
+
+
+class VotesValidator:
+    def __init__(self, voters: VotersStorage, votes: VotesStorage):
+        self.voters = voters
+        self.votes = votes
+
+    def __player_participate(self, player_id) -> bool:
+        return player_id in self.voters.players
+
+    def __player_voted(self, player_id) -> bool:
+        return self.voters.players.get(player_id)
+
+    def validate_vote_add(self, inter_id: int, target_id: int):
+        if not self.__player_participate(inter_id) or not self.__player_participate(target_id):
+            raise PlayerErrors.PlayerNotFoundError()
+        if self.__player_voted(inter_id):
+            raise VotingErrors.AlreadyVotedError()
+        if inter_id == target_id:
+            raise PlayerErrors.SelfActionError()
+
+    def validate_vote_remove(self, inter_id: int):
+        if not self.__player_participate(inter_id):
+            raise PlayerErrors.PlayerNotFoundError()
+        if not self.__player_voted(inter_id):
+            raise VotingErrors.VotingPermissionError()
 
 
 class VotesManager:
     def __init__(self, players: list[int]):
         self.voters = VotersStorage(players)
         self.votes = VotesStorage(players)
+        self.validator = VotesValidator(self.voters, self.votes)
+        self._lock = asyncio.Lock()
 
-    def add_vote(self, inter_id: int, target_id: int):
-        self.votes.add_vote(inter_id, target_id)
-        self.voters.set_voter_status(inter_id, True)
-        self.voters.not_voted_amt -= 1
-        if self.voters.not_voted_amt == 0:
-            return self.vote_result()
+    async def add_vote(self, inter_id: int, target_id: int):
+        async with self._lock:
+            self.validator.validate_vote_add(inter_id, target_id)
+            self.votes.add_vote(inter_id, target_id)
+            self.voters.set_voter_status(inter_id, True)
+            self.voters.not_voted_amt -= 1
+            if self.voters.not_voted_amt == 0:
+                return await self.vote_result()
 
-    def remove_vote(self, inter_id: int):
-        self.votes.remove_vote(inter_id)
-        self.voters.set_voter_status(inter_id, False)
-        self.voters.not_voted_amt += 1
+    async def remove_vote(self, inter_id: int):
+        async with self._lock:
+            self.validator.validate_vote_remove(inter_id)
+            self.votes.remove_vote(inter_id)
+            self.voters.set_voter_status(inter_id, False)
+            self.voters.not_voted_amt += 1
 
-    def vote_result(self):
-        return self.votes.calculate_votes(self.votes.votes)
+    async def vote_result(self):
+        async with self._lock:
+            return self.votes.calculate_votes()
