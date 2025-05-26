@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from voting.votestorage import VotesManager
-import asyncio
 
 
 class Vote(ABC):
@@ -18,7 +17,7 @@ class Vote(ABC):
     async def remove_vote(self, inter_id) -> None: ...
 
     @abstractmethod
-    async def vote_result(self) -> list[int]: ...
+    async def vote_result(self) -> int: ...
 
 
 @dataclass
@@ -29,13 +28,13 @@ class VoteKick(Vote):
     votes_manager: VotesManager
 
     async def add_vote(self, inter_id: int, target_id: int) -> None:
-        self.votes_manager.add_vote(inter_id, target_id)
+        await self.votes_manager.add_vote(inter_id, target_id)
 
     async def remove_vote(self, inter_id: int) -> None:
-        self.votes_manager.remove_vote(inter_id)
+        await self.votes_manager.remove_vote(inter_id)
 
-    async def vote_result(self) -> list[int]:
-        return self.votes_manager.vote_result()
+    async def vote_result(self) -> int:
+        return await self.votes_manager.vote_result()
 
 
 class VoteCreator:
