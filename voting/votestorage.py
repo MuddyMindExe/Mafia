@@ -56,24 +56,44 @@ class VotesValidator:
         self.voters = voters
         self.votes = votes
 
-    def __player_participate(self, player_id) -> bool:
+    def _player_participate(self, player_id) -> bool:
         return player_id in self.voters.players
 
-    def __player_voted(self, player_id) -> bool:
+    def _player_voted(self, player_id) -> bool:
         return self.voters.players.get(player_id)
 
     def validate_vote_add(self, inter_id: int, target_id: int):
-        if not self.__player_participate(inter_id) or not self.__player_participate(target_id):
+        """Validate add operation.
+
+        Args:
+            inter_id: Voter's ID
+            target_id: Target's ID
+
+        Raises:
+            PlayerErrors.PlayerNotFoundError: Voter/Target doesn't participate selected vote session
+            VotingErrors.VotingPermissionError: Player has already voted
+            PlayerErrors.SelfActionError: Self-voting attempt
+        """
+        if not self._player_participate(inter_id) or not self._player_participate(target_id):
             raise PlayerErrors.PlayerNotFoundError()
-        if self.__player_voted(inter_id):
+        if self._player_voted(inter_id):
             raise VotingErrors.AlreadyVotedError()
         if inter_id == target_id:
             raise PlayerErrors.SelfActionError()
 
     def validate_vote_remove(self, inter_id: int):
-        if not self.__player_participate(inter_id):
+        """Validate remove operation.
+
+        Args:
+            inter_id: Voter's ID
+
+        Raises:
+            PlayerErrors.PlayerNotFoundError: Player doesn't participate selected vote session
+            VotingErrors.VotingPermissionError: Player has already voted
+        """
+        if not self._player_participate(inter_id):
             raise PlayerErrors.PlayerNotFoundError()
-        if not self.__player_voted(inter_id):
+        if not self._player_voted(inter_id):
             raise VotingErrors.VotingPermissionError()
 
 
