@@ -1,6 +1,6 @@
 from game.game import Game
 from game.lobby import Lobby
-from voting.votesession import AsyncVoteSession as VoteSession
+from voting.votesession import VoteSession
 from abc import ABC, abstractmethod
 
 

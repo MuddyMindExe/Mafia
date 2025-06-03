@@ -22,7 +22,7 @@ class Vote(ABC):
 
 @dataclass
 class VoteKick(Vote):
-    """Implementation for kick voting system"""
+    """Async Implementation for voting system"""
 
     host_id: int
     votes_manager: VotesManager

@@ -8,17 +8,21 @@ class Game:
         self.time = time
         self.players = players
 
-    def move(self, inter_id: int, target_id: int, role_type):  # *
-        if self.time:
-            raise GameErrors.TimeError()
-        player = self.get_player(inter_id)
-        target = self.get_player(target_id)
+    @staticmethod
+    def _move_validation(player, target, role_type):
         if player is None:
             raise PlayerErrors.PlayerNotFoundError()
         if target is None:
             raise PlayerErrors.TargetNotFoundError()
         if not isinstance(player, role_type):
             raise PlayerErrors.ActionPermissionError()
+
+    def move(self, inter_id: int, target_id: int, role_type):  # *
+        if self.time:
+            raise GameErrors.TimeError()
+        player = self.get_player(inter_id)
+        target = self.get_player(target_id)
+        Game._move_validation(player, target, role_type)
         player.action(self.players, target)
 
     def day(self):
@@ -33,6 +37,9 @@ class Game:
 
     def get_player(self, target_id):
         return self.players.get(target_id)
+
+    def remove_player(self, target_id):
+        pass
 
 
 class GameCreator:

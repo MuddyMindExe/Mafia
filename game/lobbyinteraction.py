@@ -1,5 +1,5 @@
 from gl import current_lobbies
-from lobby import Lobby
+from game.lobby import Lobby
 import asyncio
 
 
