@@ -18,9 +18,9 @@ class AsyncLobbyInteraction:
     def __init__(self):
         self._lock = asyncio.Lock()
 
-    async def start(self, host_id, time, mafia_amt, doc_amt, sherif_amt):
+    async def start(self, host_id, time, mafia_amt, sherif_amt, doc_amt):
         async with self._lock:
-            lobby = Lobby(host_id, time, mafia_amt, doc_amt, sherif_amt)
+            lobby = Lobby(host_id, time, mafia_amt, sherif_amt, doc_amt)
             current_lobbies.add(host_id, lobby)
 
     async def delete(self, host_id):

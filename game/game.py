@@ -3,8 +3,8 @@ from errors import *
 
 
 class Game:
-    def __init__(self, host: int, time: bool, players: dict[int, Mafia | Doc | Sherif | Citizen]):
-        self.host = host
+    def __init__(self, host_id: int, time: bool, players: dict[int, Mafia | Doc | Sherif | Citizen]):
+        self.host_id = host_id
         self.time = time
         self.players = players
 
@@ -44,7 +44,7 @@ class Game:
 
 class GameCreator:
     def __init__(self):
-        self.host = None
+        self.host_id = None
         self.time = True
         self.players = None
 
@@ -52,8 +52,8 @@ class GameCreator:
         self.time = time
         return self
 
-    def set_host(self, host: int):
-        self.host = host
+    def set_host_id(self, host_id: int):
+        self.host_id = host_id
         return self
 
     def set_players(self, players: dict[int, Mafia | Doc | Sherif | Citizen]):
@@ -61,6 +61,6 @@ class GameCreator:
         return self
 
     def build(self) -> Game:
-        if not all([self.host, self.time, self.players]):
+        if not all([self.host_id, self.time, self.players]):
             raise ValueError("Missing required fields")
-        return Game(self.host, self.time, self.players)
+        return Game(self.host_id, self.time, self.players)

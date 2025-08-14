@@ -17,14 +17,14 @@ class Lobby:
         game (Game): A GameCreator instance to build the game.
         min_players_amt (int): Minimum required number of players to start the game.
     """
-    def __init__(self, host_id, time, mafia_amt, doc_amt, sherif_amt):
-        self.host_id    = host_id
-        self.time       = time
-        self.players    = set()
-        self.mafia_amt  = mafia_amt
-        self.sherif_amt = sherif_amt
-        self.doc_amt    = doc_amt
-        self.game       = GameCreator().set_host(self.host_id).set_time(self.time)
+    def __init__(self, host_id, time, mafia_amt, doc_amt, sheriff_amt):
+        self.host_id     = host_id
+        self.time        = time
+        self.players     = set()
+        self.mafia_amt   = mafia_amt
+        self.sheriff_amt = sherif_amt
+        self.doc_amt     = doc_amt
+        self.game        = GameCreator().set_host(self.host_id).set_time(self.time)
         self.min_players_amt = self.mafia_amt + self.sherif_amt + self.doc_amt + 2
 
     def add_player(self, player_id: int):
@@ -68,9 +68,9 @@ class Lobby:
             raise GameErrors.NotEnoughPlayersError()
         players = self.role_assignment()
         self.game.set_players(players).build()
-        return self.game
+        return self.game, players
 
-    def role_assignment(self) -> dict:
+    def role_assignment(self) -> dict[int, Mafia | Sherif | Doc | Citizen]:
         """
         Assigns roles to all players based on the configured amounts.
 
@@ -79,10 +79,10 @@ class Lobby:
         """
         available = list(self.players)
         mafia   = {key: Mafia()   for key in Lobby.__role_assign(available, self.mafia_amt)}
-        sherif  = {key: Sherif()  for key in Lobby.__role_assign(available, self.sherif_amt)}
+        sheriff  = {key: Sherif()  for key in Lobby.__role_assign(available, self.sherif_amt)}
         doc     = {key: Doc()     for key in Lobby.__role_assign(available, self.doc_amt)}
         citizen = {key: Citizen() for key in available}
-        return mafia | sherif | doc | citizen
+        return mafia | sheriff | doc | citizen
 
     @staticmethod
     def __role_assign(players: list[int], amt: int) -> list:
@@ -107,4 +107,4 @@ class Lobby:
                 f"players: {self.players}, "
                 f"mafia_amt: {self.mafia_amt}, "
                 f"doc_amt: {self.doc_amt}, "
-                f"sherif_amt: {self.sherif_amt}")
+                f"sheriff_amt: {self.sheriff_amt}")

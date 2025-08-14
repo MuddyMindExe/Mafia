@@ -4,7 +4,7 @@ from voting.votesession import VoteSession
 from abc import ABC, abstractmethod
 
 
-class ObjStorage(ABC):  # *
+class ObjStorage(ABC):
     @abstractmethod
     def add(self, host_id, game: Game):
         pass
@@ -28,12 +28,12 @@ class Games(ObjStorage):
     def delete(self, host_id):
         del self.games[host_id]
 
-    def find_player(self, player_id):
-        if self.games.get(player_id):
-            return True
+    def find_player(self, target_id: int) -> bool:
+        if self.games.get(target_id):
+            return target_id
         for game in self.games.values():
-            if game.players.get(player_id):
-                return True
+            if target_id in game.players:
+                return game.host_id
         return False
 
 
@@ -41,16 +41,22 @@ class Lobbies:
     def __init__(self):
         self.lobbies: dict[int, Lobby] = {}
 
-    def add(self, host_id, lobby: Lobby):
+    def add(self, host_id: int, lobby: Lobby) -> bool:
+        if host_id in self.lobbies:
+            return False
         self.lobbies[host_id] = lobby
+        return True
 
-    def delete(self, host_id):
-        self.lobbies.pop(host_id, None)
+    def delete(self, host_id: int) -> int | None:
+        return self.lobbies.pop(host_id, None)
 
-    def find_player(self, target_id):
+    def find_player(self, target_id: int) -> bool:
         if self.lobbies.get(target_id):
-            return True
-        return any(target_id in lobby.players for lobby in self.lobbies.values())
+            return target_id
+        for lobby in self.lobbies.values():
+            if target_id in lobby.players:
+                return lobby.host_id
+        return False
 
 
 class Votes(ObjStorage):
@@ -73,6 +79,14 @@ class Votes(ObjStorage):
             if player_id in players:
                 return True
         return False
+
+
+class Players(ObjStorage):
+    def __init__(self):
+        self.players: dict[int, int] = {}
+
+    def add(self):
+        pass
 
 
 current_games = Games()
